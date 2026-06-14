@@ -1,18 +1,19 @@
 export interface Env {
-  /** Short links: key = slug, value = destination URL (plain string). */
   LINKS: KVNamespace;
 }
+
+const DEFAULT_HEADERS = { "content-type": "text/plain; charset=utf-8" };
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const slug = decodeSlug(url.pathname);
 
-    // Bare domain: a tiny landing response instead of an error.
+    // bare domain -> index page
     if (!slug) {
       return new Response("URL shortener", {
         status: 200,
-        headers: { "content-type": "text/plain; charset=utf-8" },
+        headers: DEFAULT_HEADERS,
       });
     }
 
@@ -22,7 +23,7 @@ export default {
     if (!destination) {
       return new Response("Not found", {
         status: 404,
-        headers: { "content-type": "text/plain; charset=utf-8" },
+        headers: DEFAULT_HEADERS,
       });
     }
 
@@ -38,7 +39,7 @@ function decodeSlug(pathname: string): string {
   try {
     return decodeURIComponent(raw);
   } catch {
-    // Malformed percent-encoding: treat the raw value as the slug.
+    // malformed encoding -> treat the raw value as the slug
     return raw;
   }
 }

@@ -1,6 +1,6 @@
 # Cloudflare URL Shortener
 
-A minimal URL shortener built on Cloudflare Workers + KV. Worker reads the slug from path, finds the corresponding URL in KV, and issues a 302-redirect.
+A super minimal 40-line URL shortener built on Cloudflare Workers + KV. Worker reads the slug from path, finds the corresponding URL in KV, and issues a 302-redirect.
 
 ## Setup
 

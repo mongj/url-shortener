@@ -11,26 +11,24 @@ export default {
 
     // bare domain -> index page
     if (!slug) {
-      return new Response("URL shortener", {
-        status: 200,
-        headers: DEFAULT_HEADERS,
-      });
+      return new Response("URL shortener", { status: 200, headers: DEFAULT_HEADERS });
     }
 
-    const stored = await env.LINKS.get(slug);
-    const destination = stored ? mergeQuery(stored, url.searchParams) : null;
+    const redirectUrl = await env.LINKS.get(slug);
 
-    if (!destination) {
-      return new Response("Not found", {
-        status: 404,
-        headers: DEFAULT_HEADERS,
-      });
+    // 404 if the redirect URL is not found
+    if (!redirectUrl) {
+      return new Response("Not found", { status: 404, headers: DEFAULT_HEADERS });
     }
 
-    return new Response(null, {
-      status: 302,
-      headers: { Location: destination },
-    });
+    // 404 if the redirect URL is not a valid URL
+    try {
+      new URL(redirectUrl);
+    } catch {
+      return new Response("Not found", { status: 404, headers: DEFAULT_HEADERS });
+    }
+
+    return new Response(null, { status: 302, headers: { Location: redirectUrl } });
   },
 } satisfies ExportedHandler<Env>;
 
@@ -42,21 +40,4 @@ function decodeSlug(pathname: string): string {
     // malformed encoding -> treat the raw value as the slug
     return raw;
   }
-}
-
-/**
- * Returns the destination with incoming query params merged in (incoming wins
- * on key conflicts), or null if the stored value isn't a valid absolute URL.
- */
-function mergeQuery(stored: string, incoming: URLSearchParams): string | null {
-  let dest: URL;
-  try {
-    dest = new URL(stored);
-  } catch {
-    return null;
-  }
-  for (const [key, value] of incoming) {
-    dest.searchParams.set(key, value);
-  }
-  return dest.toString();
 }

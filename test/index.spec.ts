@@ -31,16 +31,6 @@ describe("link shortener", () => {
     expect(location).toBeNull();
   });
 
-  it("merges incoming query params (incoming wins on conflict)", async () => {
-    await env.LINKS.put("q", "https://example.com/page?a=1&keep=yes");
-    const { location } = await call("/q?a=2&utm=src");
-    const url = new URL(location!);
-    expect(url.origin + url.pathname).toBe("https://example.com/page");
-    expect(url.searchParams.get("a")).toBe("2"); // incoming overrides stored
-    expect(url.searchParams.get("keep")).toBe("yes"); // stored preserved
-    expect(url.searchParams.get("utm")).toBe("src"); // incoming added
-  });
-
   it("404s when the stored value is not a valid URL", async () => {
     await env.LINKS.put("bad", "not a url");
     const { status, location } = await call("/bad");

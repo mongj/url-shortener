@@ -1,0 +1,22 @@
+{
+  "name": "url-shortener",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A minimal URL shortener built on Cloudflare Workers + KV",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "types": "wrangler types",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "add-link": "wrangler kv key put --binding=LINKS"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.16.15",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8",
+    "wrangler": "4.100.0"
+  }
+}

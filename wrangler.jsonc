@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "url-shortener",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-06-01",
+
+  // To serve from your own domain, uncomment and replace with your hostname.
+  // "routes": [
+  //   { "pattern": "go.mydomain.com", "custom_domain": true }
+  // ],
+
+  "kv_namespaces": [
+    { "binding": "LINKS", "id": "<YOUR_KV_NAMESPACE_ID>" }
+  ]
+}

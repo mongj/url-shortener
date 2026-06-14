@@ -4,6 +4,9 @@ export interface Env {
 
 const DEFAULT_HEADERS = { "content-type": "text/plain; charset=utf-8" };
 
+// allowlist guards against scheme-based redirects like javascript: and data:
+const VALID_PROTOCOLS = ["http:", "https:"];
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -15,17 +18,8 @@ export default {
     }
 
     const redirectUrl = await env.LINKS.get(slug);
-
-    // 404 if the redirect URL is not found
-    if (!redirectUrl) {
-      return new Response("Not found", { status: 404, headers: DEFAULT_HEADERS });
-    }
-
-    // 404 if the redirect URL is not a valid URL
-    try {
-      new URL(redirectUrl);
-    } catch {
-      return new Response("Not found", { status: 404, headers: DEFAULT_HEADERS });
+    if (!redirectUrl || !isAllowedRedirect(redirectUrl)) {
+      return new Response("Not found", { status: 404, headers: DEFAULT_HEADERS });;
     }
 
     return new Response(null, { status: 302, headers: { Location: redirectUrl } });
@@ -39,5 +33,13 @@ function decodeSlug(pathname: string): string {
   } catch {
     // malformed encoding -> treat the raw value as the slug
     return raw;
+  }
+}
+
+function isAllowedRedirect(value: string): boolean {
+  try {
+    return VALID_PROTOCOLS.includes(new URL(value).protocol);
+  } catch {
+    return false;
   }
 }

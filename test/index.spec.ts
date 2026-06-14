@@ -43,4 +43,17 @@ describe("link shortener", () => {
     const { location } = await call("/my%20link");
     expect(location).toBe("https://example.com/spaced");
   });
+
+  it("404s when the stored value uses a disallowed scheme", async () => {
+    await env.LINKS.put("js", "javascript:alert(1)");
+    await env.LINKS.put("data", "data:text/html,<script>alert(1)</script>");
+
+    const js = await call("/js");
+    expect(js.status).toBe(404);
+    expect(js.location).toBeNull();
+
+    const data = await call("/data");
+    expect(data.status).toBe(404);
+    expect(data.location).toBeNull();
+  });
 });
